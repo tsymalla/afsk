@@ -1,2 +1,42 @@
-﻿  paradox_challenge.cpp
+﻿  DataExtractor.cpp
+c:\users\thomas symalla\downloads\paradox_challenge\src\paradox_challenge\paradox_challenge\audiofile.h(599): warning C4018: ">": Konflikt zwischen "signed" und "unsigned"
+  c:\users\thomas symalla\downloads\paradox_challenge\src\paradox_challenge\paradox_challenge\audiofile.h(534): note: Bei der Kompilierung von Klasse Vorlage der bool AudioFile<float>::decodeAiffFile(std::vector<uint8_t,std::allocator<_Ty>> &)-Memberfunktion
+          with
+          [
+              _Ty=uint8_t
+          ]
+  c:\users\thomas symalla\downloads\paradox_challenge\src\paradox_challenge\paradox_challenge\audiofile.h(407): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-Vorlage "bool AudioFile<float>::decodeAiffFile(std::vector<uint8_t,std::allocator<_Ty>> &)".
+          with
+          [
+              _Ty=uint8_t
+          ]
+  c:\users\thomas symalla\downloads\paradox_challenge\src\paradox_challenge\paradox_challenge\audiofile.h(216): note: Bei der Kompilierung von Klasse Vorlage der AudioFile<float>::AudioFile(void)-Memberfunktion
+  c:\users\thomas symalla\downloads\paradox_challenge\src\paradox_challenge\paradox_challenge\dataextractor.cpp(65): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-Vorlage "AudioFile<float>::AudioFile(void)".
+  c:\users\thomas symalla\downloads\paradox_challenge\src\paradox_challenge\paradox_challenge\dataextractor.cpp(65): note: Siehe Verweis auf die Klasse Vorlage-Instanziierung "AudioFile<float>", die kompiliert wird.
+c:\users\thomas symalla\downloads\paradox_challenge\src\paradox_challenge\paradox_challenge\audiofile.h(950): warning C4018: "<": Konflikt zwischen "signed" und "unsigned"
+  c:\users\thomas symalla\downloads\paradox_challenge\src\paradox_challenge\paradox_challenge\audiofile.h(949): note: Bei der Kompilierung von Klasse Vorlage der void AudioFile<float>::clearAudioBuffer(void)-Memberfunktion
+  c:\users\thomas symalla\downloads\paradox_challenge\src\paradox_challenge\paradox_challenge\audiofile.h(490): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-Vorlage "void AudioFile<float>::clearAudioBuffer(void)".
+  c:\users\thomas symalla\downloads\paradox_challenge\src\paradox_challenge\paradox_challenge\audiofile.h(961): note: Bei der Kompilierung von Klasse Vorlage der AudioFileFormat AudioFile<float>::determineAudioFileFormat(std::vector<uint8_t,std::allocator<_Ty>> &)-Memberfunktion
+          with
+          [
+              _Ty=uint8_t
+          ]
+  c:\users\thomas symalla\downloads\paradox_challenge\src\paradox_challenge\paradox_challenge\audiofile.h(399): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-Vorlage "AudioFileFormat AudioFile<float>::determineAudioFileFormat(std::vector<uint8_t,std::allocator<_Ty>> &)".
+          with
+          [
+              _Ty=uint8_t
+          ]
+c:\users\thomas symalla\downloads\paradox_challenge\src\paradox_challenge\paradox_challenge\audiofile.h(1007): warning C4018: "<": Konflikt zwischen "signed" und "unsigned"
+  c:\users\thomas symalla\downloads\paradox_challenge\src\paradox_challenge\paradox_challenge\audiofile.h(1003): note: Bei der Kompilierung von Klasse Vorlage der int AudioFile<float>::getIndexOfString(std::vector<uint8_t,std::allocator<_Ty>> &,std::string)-Memberfunktion
+          with
+          [
+              _Ty=uint8_t
+          ]
+  c:\users\thomas symalla\downloads\paradox_challenge\src\paradox_challenge\paradox_challenge\audiofile.h(428): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-Vorlage "int AudioFile<float>::getIndexOfString(std::vector<uint8_t,std::allocator<_Ty>> &,std::string)".
+          with
+          [
+              _Ty=uint8_t
+          ]
+  paradox_challenge.cpp
+  Code wird generiert...
   paradox_challenge.vcxproj -> C:\Users\Thomas Symalla\Downloads\paradox_challenge\src\paradox_challenge\Debug\paradox_challenge.exe

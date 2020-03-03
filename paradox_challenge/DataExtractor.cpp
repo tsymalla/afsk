@@ -22,11 +22,8 @@ void DataExtractor::run()
 		_messageList.clear();
 	}
 
-	_log("Reading audio file...");
-	_readWavData();
-	
-	_log("Generating bitstream...");
-	_decodeWavData();
+	_log("Reading audio file and generating bitstream...");
+	_generateBitstream();
 	
 	_log("Generating bytestream...");
 	_extractByteStream();
@@ -63,18 +60,17 @@ bool DataExtractor::_isValidMessage(Message& message)
 	return currentChecksum == message.checksum;
 }
 
-void DataExtractor::_readWavData()
+void DataExtractor::_generateBitstream()
 {
-	if (!_audio.load(_filename))
+	AudioData audio;
+	
+	if (!audio.load(_filename))
 	{
 		throw std::runtime_error("Could not load file " + _filename);
 	}
-}
 
-void DataExtractor::_decodeWavData()
-{
 	std::vector<unsigned int> zeroCrossings;
-	const auto numChannels = _audio.getNumChannels();
+	const auto numChannels = audio.getNumChannels();
 
 	if (numChannels < 1)
 	{
@@ -83,13 +79,13 @@ void DataExtractor::_decodeWavData()
 
 	// use only first channel as the contents of both channels in our example files
 	// seem to be identical.
-	const auto& rawData = _audio.samples[0];
+	const auto& rawData = audio.samples[0];
 
 	for (size_t i = 0; i < rawData.size() - 1; ++i)
 	{
 		const auto currentSample = rawData[i];
 		const auto nextSample = rawData[i + 1];
-		
+
 		// if current sample is high / low and next sample is low / high, we have found a new zero crossing
 		if (currentSample > 0.f && nextSample <= 0.f || currentSample < 0.f && nextSample >= 0.f || currentSample == 0.f && nextSample != 0.f)
 		{
@@ -99,12 +95,12 @@ void DataExtractor::_decodeWavData()
 
 	// calculate how many samples we are able to read for a wavelength of t = 320 microseconds
 	// at 44.1khz we have 44100 samples per second
-	const auto SAMPLE_LENGTH_MICROSECONDS = static_cast<float>(_audio.getSampleRate()) / 1000.f / 1000.f;
+	const auto SAMPLE_LENGTH_MICROSECONDS = static_cast<float>(audio.getSampleRate()) / 1000.f / 1000.f;
 
 	// one wave at t=320 takes 14 samples, downpromote it to unsigned int
 	const auto SINGLE_TIMEFRAME = static_cast<unsigned int>(static_cast<float>(ONE_LENGTH) * SAMPLE_LENGTH_MICROSECONDS);
 	const auto DOUBLE_TIMEFRAME = 2 * SINGLE_TIMEFRAME;
-	
+
 	for (size_t i = 0; i < zeroCrossings.size() - 1; ++i)
 	{
 		const auto currentCrossing = zeroCrossings[i];

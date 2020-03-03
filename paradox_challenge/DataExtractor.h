@@ -66,13 +66,11 @@ public:
 	friend std::ostream& operator<<(std::ostream& os, const DataExtractor& extractor);
 private:
 	static bool _isValidMessage(Message& message);
-	void _readWavData();
-	void _decodeWavData();
+	void _generateBitstream();
 	void _extractByteStream();
 	void _constructMessageList();
 	
 	std::string _filename;
-	AudioData _audio;
 	BitStream _bitstream;
 	ByteStream _bytestream;
 	MessageList _messageList;
@@ -82,8 +80,16 @@ private:
 
 inline std::ostream& operator<<(std::ostream& os, const DataExtractor& extractor)
 {
+	size_t messageNum = 1;
+	const auto isBinaryMode = (extractor._outFormat == DataExtractor::E_OUT_FORMAT::BINARY);
+	
 	for (const auto& message : extractor._messageList)
 	{
+		if (isBinaryMode)
+		{
+			os << "Message #" << std::to_string(messageNum) << std::endl;
+		}
+		
 		for (const auto& byte: message.data)
 		{
 			if (extractor._outFormat == DataExtractor::E_OUT_FORMAT::ASCII)
@@ -96,9 +102,11 @@ inline std::ostream& operator<<(std::ostream& os, const DataExtractor& extractor
 			}
 		}
 
-		if (extractor._outFormat == DataExtractor::E_OUT_FORMAT::BINARY)
+		if (isBinaryMode)
 		{
-			os << " CHECKSUM: " << "0x" << std::setfill('0') << std::setw(2) << std::hex << static_cast<unsigned int>(message.checksum) << std::endl;
+			os << std::endl << "CHECKSUM: " << "0x" << std::setfill('0') << std::setw(2) << std::hex << static_cast<unsigned int>(message.checksum) << std::endl;
+			++messageNum;
+			os << std::endl;
 		}
 	}
 

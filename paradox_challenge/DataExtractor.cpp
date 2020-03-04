@@ -23,7 +23,7 @@ void DataExtractor::run()
 	}
 
 	_log("Reading audio file and generating bitstream...");
-	_generateBitstream();
+	_generateBitStream();
 	
 	_log("Generating bytestream...");
 	_extractByteStream();
@@ -51,7 +51,7 @@ DataExtractor::MessageList DataExtractor::getMessageList() const
  */
 bool DataExtractor::_isValidMessage(Message& message)
 {
-	Byte currentChecksum = 0x00;
+	Byte currentChecksum{ 0x00 };
 	for (const auto& byte: message.data)
 	{
 		currentChecksum += byte;
@@ -60,7 +60,7 @@ bool DataExtractor::_isValidMessage(Message& message)
 	return currentChecksum == message.checksum;
 }
 
-void DataExtractor::_generateBitstream()
+void DataExtractor::_generateBitStream()
 {
 	AudioData audio;
 	
@@ -115,7 +115,7 @@ void DataExtractor::_generateBitstream()
 void DataExtractor::_extractByteStream()
 {
 	std::bitset<BYTE_SIZE_PACKED> currentByteEncoding;
-	Byte currentByte = 0x00;
+	Byte currentByte{ 0x00 };
 
 	auto i = 0;
 	for (const auto& bit : _bitstream)
@@ -151,8 +151,8 @@ void DataExtractor::_constructMessageList()
 	}
 	
 	// find start of data stream as it begins with 0x42 and 0x03
-	size_t startIndex;
-	for (startIndex = 0; startIndex < _bytestream.size() - 1; ++startIndex)
+	size_t startIndex{ 0 };
+	for (; startIndex < _bytestream.size() - 1; ++startIndex)
 	{
 		if ((_bytestream[startIndex] ^ _bytestream[startIndex + 1]) == START_STREAM_BYTE)
 		{
@@ -163,8 +163,8 @@ void DataExtractor::_constructMessageList()
 	}
 	
 	// iterate through byte stream backwards until we have found our concluding 0x00 byte
-	size_t endIndex;
-	for (endIndex = _bytestream.size() - 1; endIndex >= startIndex; --endIndex)
+	size_t endIndex = _bytestream.size() - 1;
+	for (; endIndex >= startIndex; --endIndex)
 	{
 		if (_bytestream[endIndex] == END_STREAM_BYTE)
 		{
@@ -175,10 +175,10 @@ void DataExtractor::_constructMessageList()
 
 	// use the previously defined range to construct messages of MESSAGE_SIZE bytes
 	// byteIndex is used for counting the current message size
-	size_t byteIndex = 0;
+	size_t byteIndex{ 0 };
 	
 	Message currentMessage{};
-	auto messageIndex = 0;
+	auto messageIndex{ 0 };
 	
 	for (size_t i = startIndex; i <= endIndex; ++i)
 	{

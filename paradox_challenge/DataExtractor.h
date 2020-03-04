@@ -31,11 +31,29 @@ class DataExtractor final
 	
 	using MessageList = std::vector<Message>;
 	
+	/**
+	 * Logging helpers.
+	 */
+	void _log()
+	{
+		std::cout << std::endl;
+	}
+
+	template<typename T, typename ...Rest>
+	void _log(T str1, Rest ...rest)
+	{
+		std::cout << str1;
+		_log(rest...);
+	}
+	
 public:
+	/**
+	 * Output format for the overloaded << operator.
+	 */
 	enum class E_OUT_FORMAT : unsigned int
 	{
 		ASCII = 0,
-		BINARY = 1
+		MESSAGE = 1
 	};
 	
 	explicit DataExtractor(std::string filename);
@@ -44,18 +62,6 @@ public:
 	void setOutFormat(E_OUT_FORMAT outFormat);
 
 	MessageList getMessageList() const;
-
-	void _log()
-	{
-		std::cout << std::endl;
-	}
-	
-	template<typename T, typename ...Rest>
-	void _log(T str1, Rest ...rest)
-	{
-		std::cout << str1;
-		_log(rest...);
-	}
 
 	template <typename ... Args>
 	void log(Args ...args)
@@ -66,7 +72,7 @@ public:
 	friend std::ostream& operator<<(std::ostream& os, const DataExtractor& extractor);
 private:
 	static bool _isValidMessage(Message& message);
-	void _generateBitstream();
+	void _generateBitStream();
 	void _extractByteStream();
 	void _constructMessageList();
 	
@@ -81,11 +87,11 @@ private:
 inline std::ostream& operator<<(std::ostream& os, const DataExtractor& extractor)
 {
 	size_t messageNum = 1;
-	const auto isBinaryMode = (extractor._outFormat == DataExtractor::E_OUT_FORMAT::BINARY);
+	const auto isMessageMode = (extractor._outFormat == DataExtractor::E_OUT_FORMAT::MESSAGE);
 	
 	for (const auto& message : extractor._messageList)
 	{
-		if (isBinaryMode)
+		if (isMessageMode)
 		{
 			os << "Message #" << std::to_string(messageNum) << std::endl;
 		}
@@ -102,7 +108,7 @@ inline std::ostream& operator<<(std::ostream& os, const DataExtractor& extractor
 			}
 		}
 
-		if (isBinaryMode)
+		if (isMessageMode)
 		{
 			os << std::endl << "CHECKSUM: " << "0x" << std::setfill('0') << std::setw(2) << std::hex << static_cast<unsigned int>(message.checksum) << std::endl;
 			++messageNum;

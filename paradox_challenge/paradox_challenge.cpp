@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 	std::cout << "ASCII representation" << std::endl << "=========" << std::endl;
 	std::cout << extractor << std::endl << std::endl;
 
-	extractor.setOutFormat(DataExtractor::E_OUT_FORMAT::BINARY);
+	extractor.setOutFormat(DataExtractor::E_OUT_FORMAT::MESSAGE);
 
 	std::cout << "Message representation" << std::endl << "=========" << std::endl;
 	std::cout << extractor << std::endl;

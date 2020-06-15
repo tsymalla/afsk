@@ -80,7 +80,7 @@ private:
     void _extractByteStream();
     void _constructMessageList();
     bool _isEndOfByte(const Definitions::ByteBitstream&) const;
-    
+
     std::string _filename;
     Definitions::BitStream _bitstream;
     Definitions::ByteStream _bytestream;

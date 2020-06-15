@@ -17,17 +17,17 @@ void DataExtractor::run()
 	}
 
     Logger::log("Reading audio file and generating bitstream...");
-	_generateBitStream();
+    _generateBitStream();
 
     Logger::log("Generating bytestream...");
-	_extractByteStream();
+    _extractByteStream();
 
     Logger::log("Generating message list...");
-	_constructMessageList();
+    _constructMessageList();
 
     Logger::log("Done!");
 
-	_hasRun = true;
+    _hasRun = true;
 }
 
 void DataExtractor::setOutFormat(E_OUT_FORMAT outFormat)
@@ -41,12 +41,12 @@ void DataExtractor::setOutFormat(E_OUT_FORMAT outFormat)
 bool DataExtractor::_isValidMessage(Definitions::Message& message)
 {
     Definitions::Byte currentChecksum{ 0x00 };
-	for (const auto& byte: message.data)
-	{
-		currentChecksum += byte;
-	}
-	
-	return currentChecksum == message.checksum;
+    for (const auto& byte: message.data)
+    {
+        currentChecksum += byte;
+    }
+
+    return currentChecksum == message.checksum;
 }
 
 void DataExtractor::_generateBitStream()
@@ -103,7 +103,7 @@ void DataExtractor::_generateBitStream()
 
 void DataExtractor::_extractByteStream()
 {
-	Definitions::ByteBitstream currentByteEncoding;
+    Definitions::ByteBitstream currentByteEncoding;
     Definitions::Byte currentByte{ 0x00 };
 
 	auto i = 0;
@@ -134,68 +134,68 @@ void DataExtractor::_extractByteStream()
 
 void DataExtractor::_constructMessageList()
 {
-	if (_bytestream.empty() || _bytestream.size() + 2 <= Definitions::START_STREAM_BYTE)
-	{
-		throw std::runtime_error("Could not construct byte stream.");
-	}
-	
-	// find start of data stream as it begins with 0x42 and 0x03
-	size_t startIndex{ 0 };
-	for (; startIndex < _bytestream.size() - 1; ++startIndex)
-	{
-		if ((_bytestream[startIndex] ^ _bytestream[startIndex + 1]) == Definitions::START_STREAM_BYTE)
-		{
-			// increment until we have our correct start index
-			startIndex += 2;
-			break;
-		}
-	}
-	
-	// iterate through byte stream backwards until we have found our concluding 0x00 byte
-	size_t endIndex = _bytestream.size() - 1;
-	for (; endIndex >= startIndex; --endIndex)
-	{
-		if (_bytestream[endIndex] == Definitions::END_STREAM_BYTE)
-		{
-			endIndex -= 1;
-			break;
-		}
-	}
+    if (_bytestream.empty() || _bytestream.size() + 2 <= Definitions::START_STREAM_BYTE)
+    {
+        throw std::runtime_error("Could not construct byte stream.");
+    }
 
-	// use the previously defined range to construct messages of MESSAGE_SIZE bytes
-	// byteIndex is used for counting the current message size
-	size_t byteIndex{ 0 };
+    // find start of data stream as it begins with 0x42 and 0x03
+    size_t startIndex{ 0 };
+    for (; startIndex < _bytestream.size() - 1; ++startIndex)
+    {
+        if ((_bytestream[startIndex] ^ _bytestream[startIndex + 1]) == Definitions::START_STREAM_BYTE)
+        {
+            // increment until we have our correct start index
+            startIndex += 2;
+            break;
+        }
+    }
+
+    // iterate through byte stream backwards until we have found our concluding 0x00 byte
+    size_t endIndex = _bytestream.size() - 1;
+    for (; endIndex >= startIndex; --endIndex)
+    {
+        if (_bytestream[endIndex] == Definitions::END_STREAM_BYTE)
+        {
+            endIndex -= 1;
+            break;
+        }
+    }
+
+    // use the previously defined range to construct messages of MESSAGE_SIZE bytes
+    // byteIndex is used for counting the current message size
+    size_t byteIndex{ 0 };
 
     Definitions::Message currentMessage{};
-	auto messageIndex{ 0 };
-	
-	for (size_t i = startIndex; i <= endIndex; ++i)
-	{
-		const auto& currentByte = _bytestream[i];
-		currentMessage.data[byteIndex] = currentByte;
-		// copy over the current byte to our message
-		// generate checksum of all bytes in the current message and check against the next byte (the parity byte)
+    auto messageIndex{ 0 };
 
-		++byteIndex;
-		if (byteIndex % Definitions::MESSAGE_SIZE == 0)
-		{
-			byteIndex = 0;
-			// check if the following byte is the correct checksum for our current message
-			currentMessage.checksum = _bytestream[i + 1];
-			++messageIndex;
+    for (size_t i = startIndex; i <= endIndex; ++i)
+    {
+        const auto& currentByte = _bytestream[i];
+        currentMessage.data[byteIndex] = currentByte;
+        // copy over the current byte to our message
+        // generate checksum of all bytes in the current message and check against the next byte (the parity byte)
 
-			_messageList.push_back(currentMessage);
-			
-			if (!_isValidMessage(currentMessage))
-			{
-				std::cerr << "Invalid checksum for message #" << messageIndex << std::endl;
-				continue;
-			}
-			
-			// skip the checksum byte
-			++i;
-		}
-	}
+        ++byteIndex;
+        if (byteIndex % Definitions::MESSAGE_SIZE == 0)
+        {
+            byteIndex = 0;
+            // check if the following byte is the correct checksum for our current message
+            currentMessage.checksum = _bytestream[i + 1];
+            ++messageIndex;
+
+            _messageList.push_back(currentMessage);
+
+            if (!_isValidMessage(currentMessage))
+            {
+                std::cerr << "Invalid checksum for message #" << messageIndex << std::endl;
+                continue;
+            }
+
+            // skip the checksum byte
+            ++i;
+        }
+    }
 }
 
 bool DataExtractor::_isEndOfByte(const Definitions::ByteBitstream& bitstream) const

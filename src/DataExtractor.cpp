@@ -32,7 +32,7 @@ void DataExtractor::run()
 
 void DataExtractor::setOutFormat(E_OUT_FORMAT outFormat)
 {
-	_outFormat = outFormat;
+    _outFormat = outFormat;
 }
 
 /**

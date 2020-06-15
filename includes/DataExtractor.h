@@ -75,18 +75,18 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& os, const DataExtractor& extractor);
 private:
-	static bool _isValidMessage(Definitions::Message& message);
-	void _generateBitStream();
-	void _extractByteStream();
-	void _constructMessageList();
+    bool _isValidMessage(Definitions::Message& message);
+    void _generateBitStream();
+    void _extractByteStream();
+    void _constructMessageList();
     bool _isEndOfByte(const Definitions::ByteBitstream&) const;
-
-	std::string _filename;
+    
+    std::string _filename;
     Definitions::BitStream _bitstream;
     Definitions::ByteStream _bytestream;
     Definitions::MessageList _messageList;
-	bool _hasRun;
-	E_OUT_FORMAT _outFormat;
+    bool _hasRun;
+    E_OUT_FORMAT _outFormat;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const DataExtractor& extractor)

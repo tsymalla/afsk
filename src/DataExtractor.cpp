@@ -6,15 +6,15 @@ DataExtractor::DataExtractor(std::string filename): _filename(std::move(filename
 
 void DataExtractor::run()
 {
-	Logger::log("Processing file ", _filename, "...");
+    Logger::log("Processing file ", _filename, "...");
 
-	if (_hasRun)
-	{
-		Logger::log("Clearing previous data...");
-		_bitstream.clear();
-		_bytestream.clear();
-		_messageList.clear();
-	}
+    if (_hasRun)
+    {
+        Logger::log("Clearing previous data...");
+        _bitstream.clear();
+        _bytestream.clear();
+        _messageList.clear();
+    }
 
     Logger::log("Reading audio file and generating bitstream...");
     _generateBitStream();
@@ -52,53 +52,53 @@ bool DataExtractor::_isValidMessage(Definitions::Message& message)
 void DataExtractor::_generateBitStream()
 {
     Definitions::AudioData audio;
-	
-	if (!audio.load(_filename))
-	{
-		throw std::runtime_error("Could not load file " + _filename);
-	}
 
-	std::vector<unsigned int> zeroCrossings;
-	const auto numChannels = audio.getNumChannels();
+    if (!audio.load(_filename))
+    {
+        throw std::runtime_error("Could not load file " + _filename);
+    }
 
-	if (numChannels < 1)
-	{
-		throw std::runtime_error("No channels found.");
-	}
+    std::vector<unsigned int> zeroCrossings;
+    const auto numChannels = audio.getNumChannels();
 
-	// use only first channel as the contents of both channels in our example files
-	// seem to be identical.
-	const auto& rawData = audio.samples[0];
+    if (numChannels < 1)
+    {
+        throw std::runtime_error("No channels found.");
+    }
 
-	for (size_t i = 0; i < rawData.size() - 1; ++i)
-	{
-		const auto currentSample = rawData[i];
-		const auto nextSample = rawData[i + 1];
+    // use only first channel as the contents of both channels in our example files
+    // seem to be identical.
+    const auto& rawData = audio.samples[0];
 
-		// if current sample is high / low and next sample is low / high, we have found a new zero crossing
-		if (currentSample > 0.f && nextSample <= 0.f || currentSample < 0.f && nextSample >= 0.f || currentSample == 0.f && nextSample != 0.f)
-		{
-			zeroCrossings.push_back(i);
-		}
-	}
+    for (size_t i = 0; i < rawData.size() - 1; ++i)
+    {
+        const auto currentSample = rawData[i];
+        const auto nextSample = rawData[i + 1];
 
-	// calculate how many samples we are able to read for a wavelength of t = 320 microseconds
-	// at 44.1khz we have 44100 samples per second
-	const auto SAMPLE_LENGTH_MICROSECONDS = static_cast<float>(audio.getSampleRate()) / 1000.f / 1000.f;
+        // if current sample is high / low and next sample is low / high, we have found a new zero crossing
+        if (currentSample > 0.f && nextSample <= 0.f || currentSample < 0.f && nextSample >= 0.f || currentSample == 0.f && nextSample != 0.f)
+        {
+            zeroCrossings.push_back(i);
+        }
+    }
 
-	// one wave at t=320 takes 14 samples, downpromote it to unsigned int
-	const auto SINGLE_TIMEFRAME = static_cast<unsigned int>(static_cast<float>(Definitions::ONE_LENGTH) * SAMPLE_LENGTH_MICROSECONDS);
-	const auto DOUBLE_TIMEFRAME = 2 * SINGLE_TIMEFRAME;
+    // calculate how many samples we are able to read for a wavelength of t = 320 microseconds
+    // at 44.1khz we have 44100 samples per second
+    const auto SAMPLE_LENGTH_MICROSECONDS = static_cast<float>(audio.getSampleRate()) / 1000.f / 1000.f;
 
-	for (size_t i = 0; i < zeroCrossings.size() - 1; ++i)
-	{
-		const auto currentCrossing = zeroCrossings[i];
-		const auto nextCrossing = zeroCrossings[i + 1];
-		const auto diff = nextCrossing - currentCrossing;
+    // one wave at t=320 takes 14 samples, downpromote it to unsigned int
+    const auto SINGLE_TIMEFRAME = static_cast<unsigned int>(static_cast<float>(Definitions::ONE_LENGTH) * SAMPLE_LENGTH_MICROSECONDS);
+    const auto DOUBLE_TIMEFRAME = 2 * SINGLE_TIMEFRAME;
 
-		// evaluates to true if time between two points != 640
-		_bitstream.push_back(diff < DOUBLE_TIMEFRAME);
-	}
+    for (size_t i = 0; i < zeroCrossings.size() - 1; ++i)
+    {
+        const auto currentCrossing = zeroCrossings[i];
+        const auto nextCrossing = zeroCrossings[i + 1];
+        const auto diff = nextCrossing - currentCrossing;
+
+        // evaluates to true if time between two points != 640
+        _bitstream.push_back(diff < DOUBLE_TIMEFRAME);
+    }
 }
 
 void DataExtractor::_extractByteStream()
@@ -106,30 +106,30 @@ void DataExtractor::_extractByteStream()
     Definitions::ByteBitstream currentByteEncoding;
     Definitions::Byte currentByte{ 0x00 };
 
-	auto i = 0;
-	for (const auto& bit : _bitstream)
-	{
-		currentByteEncoding.set(i, bit);
-		++i;
-		
-		// if we reached the end of an byte (one start bit, two stop bits, extract the data and convert it to a byte
-		if (i % Definitions::BYTE_SIZE_PACKED == 0)
-		{
-			if (_isEndOfByte(currentByteEncoding))
-			{
-				for (size_t byteIndex = 1; byteIndex < Definitions::BYTE_SIZE_PACKED - 2; ++byteIndex)
-				{
-					currentByte |= currentByteEncoding[byteIndex] << (byteIndex - 1);
-				}
+    auto i = 0;
+    for (const auto& bit : _bitstream)
+    {
+        currentByteEncoding.set(i, bit);
+        ++i;
 
-				_bytestream.push_back(currentByte);
-			}
+        // if we reached the end of an byte (one start bit, two stop bits, extract the data and convert it to a byte
+        if (i % Definitions::BYTE_SIZE_PACKED == 0)
+        {
+            if (_isEndOfByte(currentByteEncoding))
+            {
+                for (size_t byteIndex = 1; byteIndex < Definitions::BYTE_SIZE_PACKED - 2; ++byteIndex)
+                {
+                    currentByte |= currentByteEncoding[byteIndex] << (byteIndex - 1);
+                }
 
-			i = 0;
-			currentByteEncoding.reset();
-			currentByte = 0x00;
-		}
-	}
+                _bytestream.push_back(currentByte);
+            }
+
+            i = 0;
+            currentByteEncoding.reset();
+            currentByte = 0x00;
+        }
+    }
 }
 
 void DataExtractor::_constructMessageList()
